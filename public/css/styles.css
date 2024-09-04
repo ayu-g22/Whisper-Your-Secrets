@@ -14,3 +14,7 @@ body {
   color: #fff;
   background-color: #000;
 }
+
+.delete-secret {
+  cursor: pointer; /* Change cursor to pointer on hover */
+}

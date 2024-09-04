@@ -22,11 +22,16 @@ const userSchema=new mongoose.Schema({
     password:String
 });
 
+const secretSchema=new mongoose.Schema({
+    content:String,
+});
+
 const secret=process.env.SECRET;
 
 userSchema.plugin(encrypt, { secret : secret, encryptedFields: ['password']  });
 
 const user=mongoose.model('user',userSchema);
+const Secret=mongoose.model('secret',secretSchema);
 
 app.get('/',function(req,res){
     res.render("home");
@@ -48,9 +53,31 @@ app.post('/register',function(req,res){
     u1.save(function(err){
         if(err)
          res.send(err);
-        else
-         res.render('secrets');
-    });
+        else{
+                Secret.find({})
+        .then(secrets => {
+        res.render('secrets', { secrets: secrets });
+        })
+        .catch(err => res.status(500).send('Error fetching secrets:', err));
+            }
+        });
+})
+
+app.delete('/delete-secret/:id', async (req, res) => {
+    try {
+      await Secret.findByIdAndDelete(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.json({ success: false, error: error.message });
+    }
+  });
+
+app.get('/secrets',(req,res)=>{
+    Secret.find({})
+    .then(secrets => {
+      res.render('secrets', { secrets: secrets });
+    })
+    .catch(err => res.status(500).send('Error fetching secrets:', err));
 })
 
 app.post('/login',function(req,res){
@@ -67,6 +94,28 @@ app.post('/login',function(req,res){
     })
 })
 
-app.listen(3000,function(){
-    console.log("Serving at port 3000");
+app.get('/submit',(req,res)=>{
+    res.render('submit');
+});
+
+app.post('/submit',async (req,res)=>{
+    const newSecret = new Secret({
+        content: req.body.secret
+      });
+    
+      try {
+        await newSecret.save();  // Synchronous-like save operation
+        res.redirect('/secrets'); // Redirect to display all secrets
+      } catch (err) {
+        res.status(500).send('Error saving secret: ' + err);
+      }
+        Secret.find({})
+        .then(secrets => {
+          res.render('secrets', { secrets: secrets });
+        })
+        .catch(err => res.status(500).send('Error fetching secrets:', err));
+});
+
+app.listen(4000,function(){
+    console.log("Serving at port 4000");
 });
