@@ -1,4 +1,20 @@
 
-
+<script>
+    function deleteSecret(secretId) {
+      fetch(`/delete-secret/${secretId}`, {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const secretElement = document.querySelector(`[onclick="deleteSecret('${secretId}')"]`).closest('li');
+          secretElement.remove();
+        } else {
+          alert('Error deleting secret. Please try again.');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  </script>
 </body>
 </html>
