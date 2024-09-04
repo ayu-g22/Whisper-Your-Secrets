@@ -1,4 +1,4 @@
-Here's the revised summary:
+Here's the summary:
 
 ---
 
